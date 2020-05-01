@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      div {
+        height: 700px;
+        width: 100%;
+       }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
+    </script>
+    <script>
+      const http = new XMLHttpRequest();
+          const url = 'http://localhost:3000/';
+          var mapData;
+          http.onreadystatechange = function()
+          {
+            if (http.readyState == 4 && http.status == 200) {
+              mapData = JSON.parse(http.response)        
+            }
+          }
+          http.open("GET",url);
+          http.send();
+            function initMap() {
+              
+              var map = new google.maps.Map(document.getElementById('map'), 
+              {
+                zoom: 8,
+                center: {lat : mapData[12].latitude, lng: mapData[12].longitude}
+              });
+              var marker = "";
+
+              function whiteFlag() 
+              {
+                  return {
+                      path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z M -2,-30 a 2,2 0 1,1 4,0 2,2 0 1,1 -4,0',
+                      fillColor: '#FFF',
+                      fillOpacity: 1,
+                      strokeColor: '#000',
+                      strokeWeight: 2,
+                      scale: 1,
+                };
+              }
+
+              for(var i=0;i<15;i++){
+                marker = new google.maps.Marker({
+                  position: {lat : mapData[i].latitude, lng: mapData[i].longitude},
+                  map: map
+                });
+                if (mapData[i].type == "RetailLocation"){
+                  marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+                }
+                else if(mapData[i].type == "HeadQuarters"){
+                  marker.setIcon(whiteFlag());
+                }
+                else if(mapData[i].type == "Call Center"){
+                  marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+                }
+                else if(mapData[i].type == "Distribution Facility"){
+
+                  marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+                }
+              }
+
+              for (i=0;i<15;i++) 
+              {
+                if(mapData[i].type == "RetailLocation")
+                var circle = new google.maps.Circle({
+                  strokeColor: '#64967d',
+                  strokeOpacity: 0.6,
+                  strokeWeight: 1,
+                  fillColor: '#b0ecf4',
+                  fillOpacity: 0.5,
+                  map: map,
+                  center: {lat : mapData[i].latitude, lng: mapData[i].longitude},
+                  radius: Math.sqrt(mapData[i].$revenue) * 2
+                });
+              }
+            }
+    </script>
+  </body>
+</html>
